@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jota-Bot Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Jota-Bot Dashboard</h1>
+    </header>
+    <form method="POST" action="/setting/aimodel" enctype="multipart/form-data">
+        <label for="aimodel">AI Model:</label>
+        <select name="content" id="content" required>
+            <option value="gpt">GPT</option>
+            <option value="gemini">Gemini</option>
+        </select>
+        <button type="submit">Set</button>
+    </form>
+    <form method="POST" action="/setting/adminid" enctype="multipart/form-data">
+        <label for="adminid">Admin ID:</label>
+        <textarea name="content" id="content" rows="1" cols="50" required></textarea>
+        <button type="submit">Set</button>
+    </form>
+    <form method="POST" action="/setting/logging" enctype="multipart/form-data">
+        <label for="logging">Log chats?</label>
+        <select name="content" id="content" required>
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select>
+        <button type="submit">Set</button>
+    </form>
+
+
+
+    <form method="POST" action="/api/upload" enctype="multipart/form-data">
+        <label for="materia">Materia:</label>
+        <select name="materia" id="materia">
+            <option value="Matemática">Matemática</option>
+            <option value="Música">Música</option>
+            <option value="Biología">Biología</option>
+            <option value="Prácticas del lenguaje">Prácticas del lenguaje</option>
+            <option value="Inglés">Inglés</option>
+            <option value="Ciudadanía">Ciudadanía</option>
+            <option value="Educación Física">Educación Física</option>
+            <option value="Fisico-Química">Fisico-Química</option>
+            <option value="Geografía">Geografía</option>
+            <option value="Historia">Historia</option>
+        </select>
+        <br>
+        <label for="respuesta">Respuesta:</label>
+        <textarea name="respuesta" id="respuesta" rows="4" cols="50" required></textarea>
+
+        <label for="username">Nombre de Usuario y título:</label>
+        <textarea name="username" id="username" rows="1" cols="50" required></textarea>
+
+        <label for="imagen">Seleccionar imagen:</label>
+        <input type="file" name="file" accept="image/*">
+        <br>
+
+        <button class="button-blue" type="submit">Publicar</button>
+    </form>
+    <nav>
+        <a href="#status">Home</a>
+        <a href="#commands">Commands</a>
+        <a href="#settings">Settings</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <section id="status">
+        <h2>Bot status</h2>
+        <iframe src="http://127.0.0.1:8081/status"></iframe>
+        <p>Welcome to your Discord bot dashboard. This section can provide an overview of your bot's status, statistics, etc.</p>
+    </section>
+
+    <section id="commands">
+        <h2>Commands</h2>
+        <p>List and explain the available commands for your Discord bot in this section.</p>
+    </section>
+
+    <section id="settings" class="settings">
+        <h2>Settings</h2>
+        <form>
+            <label for="prefix">Bot Prefix:</label>
+            <input type="text" id="prefix" name="prefix" placeholder="Enter bot prefix">
+            <br>
+            <label for="logChannel">Log Channel:</label>
+            <input type="text" id="logChannel" name="logChannel" placeholder="Enter log channel ID">
+            <br>
+            <button type="submit">Save Settings</button>
+        </form>
+    </section>
+
+    <section id="contact">
+        <h2>Contact</h2>
+        <p>Use the form below to contact the bot owner or support.</p>
+        <form>
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name">
+            <br>
+            <label for="email">Your Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email">
+            <br>
+            <label for="message">Your Message:</label>
+            <textarea id="message" name="message" placeholder="Type your message here"></textarea>
+            <br>
+            <button type="submit">Send Message</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Jota-Bot</p>
+    </footer>
+    <script>
+        // Function to request notification permission
+        async function requestPermission() {
+          try {
+            const permission = await Notification.requestPermission();
+            return permission === 'granted';
+          } catch (error) {
+            console.error('Error requesting notification permission:', error);
+            return false;
+          }
+        }
+        
+        // Function to check if notification permission is granted
+        function hasPermission() {
+          return Notification.permission === 'granted';
+        }
+        
+        // Function to show notification
+        async function showNotification(text) {
+          if (await hasPermission()) {
+            const title = 'Notification from project';
+            const options = {
+              body: text
+            };
+        
+            try {
+              const notification = new Notification(title, options);
+              setTimeout(() => {
+                notification.close();
+              }, 5000); // Close the notification after 5 seconds
+            } catch (error) {
+              console.error('Error showing notification:', error);
+            }
+          }
+        }
+        
+        // Function to close notification
+        function closeNotification() {
+          // Notifications cannot be closed from outside the notification itself
+          console.error('Cannot close notification from outside the notification.');
+        }
+        
+        // Event listener to request notification permission
+        document.addEventListener('DOMContentLoaded', async () => {
+          if (Notification.permission !== 'granted') {
+            await requestPermission();
+          }
+        });
+        
+        // Example usage:
+        // showNotification('Hello, world!');
+        </script>
+</body>
+</html>

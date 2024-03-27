@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Jota-Bot
+Comment=AI powered Discord bot
+Exec=AppRun
+Terminal=True
+Icon=icon.png
+Categories=Network
