@@ -1,6 +1,6 @@
-      # pip install aiohttp
-      # pip install requests
-      # pip install discord
+    # pip install aiohttp
+    # pip install requests
+    # pip install discord
 
 GPT_ENDPOINT = "https://api.openai.com/v1/chat/completions"
 GPT_KEY = ""
@@ -53,27 +53,27 @@ def gemini(prompt, uRequests:bool=False):
         return response.text
 
 def chatgpt(prompt:str, history_payload:list):
-          import requests, json
-          global GPT_ENDPOINT, GPT_HEADERS, GPT_KEY, GPT_MODEL, GPT_TTS_URL, payload, data
+    import requests, json
+    global GPT_ENDPOINT, GPT_HEADERS, GPT_KEY, GPT_MODEL, GPT_TTS_URL, payload, data
 
-          payload = [
-              {"role": "system", "content": "You are a helpful AI."},
-              {"role": "user", "content": prompt}
-          ]
+    payload = [
+        {"role": "system", "content": "You are a helpful AI."},
+        {"role": "user", "content": prompt}
+    ]
 
-          data = {
-              "model": GPT_MODEL,
-              "messages": history_payload + [{"role": "user", "content": prompt}]
-          }
+    data = {
+        "model": GPT_MODEL,
+        "messages": history_payload + [{"role": "user", "content": prompt}]
+    }
 
-          try:
-              if GPT_ENDPOINT == "https://api.openai.com/v1/chat/completions":
-                  response = requests.post(GPT_ENDPOINT, headers=GPT_HEADERS, data=json.dumps(data))
-              else:
-                  response = requests.post(GPT_ENDPOINT, headers=GPT_HEADERS, json=data)
-              return response.json()
-          except Exception as e:
-              return e
+    try:
+        if GPT_ENDPOINT == "https://api.openai.com/v1/chat/completions":
+            response = requests.post(GPT_ENDPOINT, headers=GPT_HEADERS, data=json.dumps(data))
+        else:
+            response = requests.post(GPT_ENDPOINT, headers=GPT_HEADERS, json=data)
+        return response.json()
+    except Exception as e:
+        return e
 
 def tts(text, api_key):
     import requests
@@ -118,32 +118,32 @@ def ttsmp3(text, voice:str="Enrique"):
     return f"https://ttsmp3.com/created_mp3/{mp3['MP3']}"
 
 def webhook(url:str, content:str="Test content", debug:bool=False):
-          import requests
-          try:
-              rs = requests.post(url, json={"content": content})
-              if rs.status_code == 200:
-                  return True
-          except Exception as e:
-              if debug:
-                  return str(e)
-              else:
-                  return False
+    import requests
+    try:
+        rs = requests.post(url, json={"content": content})
+        if rs.status_code == 200:
+            return True
+    except Exception as e:
+        if debug:
+            return str(e)
+        else:
+            return False
 
 async def async_webhook(url: str, content: str = "Test content", debug: bool = False):
-          import aiohttp, asyncio, json
-          try:
-              async with aiohttp.ClientSession() as session:
-                  async with session.post(url, json={"content": content}) as response:
-                      if response.status == 200:
-                          return True
-                      else:
-                          if debug:
-                              return response.status
-                          return False
-          except Exception as e:
-              if debug:
-                  return str(e)
-              return False
+    import aiohttp, asyncio, json
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json={"content": content}) as response:
+                if response.status == 200:
+                    return True
+                else:
+                    if debug:
+                        return response.status
+                    return False
+    except Exception as e:
+        if debug:
+            return str(e)
+        return False
 
 log = []
 
@@ -171,7 +171,7 @@ def gradient(text:str, mode:str, start_color:list, end_color:list, usenumpy:bool
     class InvalidGradientOption(Exception):
         def __init__(self, reason=None):
             self.reason = reason
-            message = f"The gradient option you chose ({reason}) is not a valid option."
+            message = f"The gradient option you chose ({str(reason)}) is not a valid option."
     
     class InvalidStepsAmount(Exception):
         def __init__(self, reason=None):
@@ -195,12 +195,13 @@ def gradient(text:str, mode:str, start_color:list, end_color:list, usenumpy:bool
             try:
                 import numpy as np
             except ImportError:
-                import sys, platform
-                python_executable = sys.executable or "python"
+                import sys
+                import platform
+                
                 if platform.system() == "Windows":
                     python_command = "python"  # Windows ussually has Python in PATH
                 else:
-                    python_command = python_executable
+                    python_command = sys.executable or "python"
                 
                 print(f"Numpy module is not installed.\nInstall it by running \"{python_command} -m pip install numpy\" or disable it.")
             if steps <= 0:
@@ -315,71 +316,70 @@ def gradient(text:str, mode:str, start_color:list, end_color:list, usenumpy:bool
     print("\033[0m", end='')
 
 def prettyprint(color, text):
-      global outcolor
-      if color == "red":
-          outcolor = "\033[31m"
-      elif color == "green":
-          outcolor = "\033[32m"
-      elif color == "yellow":
-          outcolor = "\033[33m"
-      elif color == "blue":
-          outcolor = "\033[34m"
-      elif color == "purple":
-          outcolor = "\033[35m"
-      elif color == "cyan":
-          outcolor = "\033[36m"
-      elif color == "white":
-          outcolor = "\033[37m"
-      else:
-          outcolor = "\033[0m"  # Default
-      print(outcolor + str(text) + "\033[0m")
-      return
+    global outcolor
+    if color == "red":
+        outcolor = "\033[31m"
+    elif color == "green":
+        outcolor = "\033[32m"
+    elif color == "yellow":
+        outcolor = "\033[33m"
+    elif color == "blue":
+        outcolor = "\033[34m"
+    elif color == "purple":
+        outcolor = "\033[35m"
+    elif color == "cyan":
+        outcolor = "\033[36m"
+    elif color == "white":
+        outcolor = "\033[37m"
+    else:
+        outcolor = "\033[0m"  # Default
+    print(outcolor + str(text) + "\033[0m")
+    return
 
 async def old_tts(ttsText, download=False, upload=False, uplURL="https://example.com"):
-          import aiohttp
+    import aiohttp
 
-          # Request for TTS generation
-          async with aiohttp.ClientSession(headers={'Authorization': f'Bearer {GPT_KEY}'}) as session:
-              async with session.post(GPT_TTS_URL, json={'text': ttsText}) as resp:
-                  response = await resp.json()
+    # Request for TTS generation
+    async with aiohttp.ClientSession(headers={'Authorization': f'Bearer {GPT_KEY}'}) as session:
+        async with session.post(GPT_TTS_URL, json={'text': ttsText}) as resp:
+            response = await resp.json()
 
-          ttsURL = response["url"]
+    ttsURL = response["url"]
 
-          if upload == False:
-              return ttsURL
+    if upload == False:
+        return ttsURL
 
-          if download:
-              async with aiohttp.ClientSession() as session:
-                  async with session.get(ttsURL) as audio_response:
-                      if audio_response.status == 200:
-                          audio_data = await audio_response.read()
-                          with open('ai_tts.mp3', 'wb') as audio_file:
-                              audio_file.write(audio_data)
+    if download:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(ttsURL) as audio_response:
+                if audio_response.status == 200:
+                    audio_data = await audio_response.read()
+                    with open('ai_tts.mp3', 'wb') as audio_file:
+                        audio_file.write(audio_data)
 
-          if upload:
-              import os
-              # Send the downloaded TTS audio file as an attachment
-              with open('ai_tts.mp3', 'rb') as audio_file:
-                  pass # UPLOAD API GOES HERE
-              os.remove('ai_tts.mp3')
-          return
+    if upload:
+        import os
+        # Send the downloaded TTS audio file as an attachment
+        with open('ai_tts.mp3', 'rb') as audio_file:
+            pass # UPLOAD API GOES HERE
+        os.remove('ai_tts.mp3')
+    return
 
 def getIP(returnIP:bool=True,returnLoc:bool=True,returnCoords:bool=True,returnAll:bool=False):
-          import requests, json, os
-          # g=lambda r,l,c,a:json.dumps({k:v for k,v in requests.get('https://ipinfo.io/json').json().items() if k in ["ip","loc"]+["country","region","city"]*(l-1)+(a-1)*["country","region","city"]}) if r or l or c or a else ""
-          data = requests.get('https://ipinfo.io/json').json()
-          r = ""
-          if returnIP:
-              r = r + str(data["ip"])
-              pass
-          if returnLoc:
-              r = r + str(data["country"]) + ", " + str(data["region"]) + ", " + str(data["city"])
-              pass
-          if returnCoords:
-              r = r + str(data["loc"])
-              pass
-          if returnAll:
-              r = str(f"IP: {data['ip']}\nUser: {os.getlogin()}\nCity: {data['city']}\nState: {data['region']}\nCountry: {data['country']}\nCoords: {data['loc']}\nZIP Code: {data['postal']}\nTimezone: {data['timezone']}")
-              pass
-          return r
-
+    import requests, json, os
+    # g=lambda r,l,c,a:json.dumps({k:v for k,v in requests.get('https://ipinfo.io/json').json().items() if k in ["ip","loc"]+["country","region","city"]*(l-1)+(a-1)*["country","region","city"]}) if r or l or c or a else ""
+    data = requests.get('https://ipinfo.io/json').json()
+    r = ""
+    if returnIP:
+        r = r + str(data["ip"])
+        pass
+    if returnLoc:
+        r = r + str(data["country"]) + ", " + str(data["region"]) + ", " + str(data["city"])
+        pass
+    if returnCoords:
+        r = r + str(data["loc"])
+        pass
+    if returnAll:
+        r = str(f"IP: {data['ip']}\nUser: {os.getlogin()}\nCity: {data['city']}\nState: {data['region']}\nCountry: {data['country']}\nCoords: {data['loc']}\nZIP Code: {data['postal']}\nTimezone: {data['timezone']}")
+        pass
+    return r
