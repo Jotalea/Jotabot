@@ -24,9 +24,9 @@
 
 # Before running this code, run this command:
 #   On Windows:
-#       pip install discord google.generativeai shuttleai flask numpy
+#       pip install -r requirements.txt
 #   On Linux:
-#       python3 -m pip install discord google.generativeai shuttleai flask numpy
+#       python3 -m pip install -r requirements.txt
 
 # Error codes:
 # -1 = Unknown
@@ -41,19 +41,19 @@
 # 8 = socket.gaierror
 
 try:
-    import jotalea
+    import libjotalea as jotalea
 except FileNotFoundError:
-    print("\033[31m[CODE] Failed to import libraries. (0)\nIf you are running the program from source, then run this command to install them all:\npip install flask discord shuttleai google.generativeai numpy\nAnd make sure to have the latest version of jotalea.py, which should be in the same directory as this file.\nYou can get the latest version by running:\ncurl https://jotalea.com.ar/files/jotalea.py\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
+    print("\033[31m[CODE] Failed to import libjotalea. (0)\nIf you are running the program from source, then run this command to get it:\ncurl https://jotalea.com.ar/files/libjotalea.py\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
     exit()
 except ModuleNotFoundError:
-    print("\033[31m[CODE] Failed to import libraries. (1)\nIf you are running the program from source, then run this command to install them all:\npip install flask discord shuttleai google.generativeai numpy\nAnd make sure to have the latest version of jotalea.py, which should be in the same directory as this file.\nYou can get the latest version by running:\ncurl https://jotalea.com.ar/files/jotalea.py\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
+    print("\033[31m[CODE] Failed to import libjotalea. (1)\nIf you are running the program from source, then run this command to get it:\ncurl https://jotalea.com.ar/files/libjotalea.py\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
     exit()
 except NameError:
-    print("\033[31m[CODE] Failed to import libraries. (2)\nIf you are running the program from source, then run this command to install them all:\npip install flask discord shuttleai google.generativeai numpy\nAnd make sure to have the latest version of jotalea.py, which should be in the same directory as this file.\nYou can get the latest version by running:\ncurl https://jotalea.com.ar/files/jotalea.py\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
+    print("\033[31m[CODE] Failed to import libjotalea. (2)\nIf you are running the program from source, then run this command to get it:\ncurl https://jotalea.com.ar/files/libjotalea.py\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
     exit()
 
 try:
-    import aiohttp, asyncio, discord, json, os, psutil, random, socket, subprocess, sqlite3, time
+    import aiohttp, asyncio, discord, json, os, psutil, random, socket, subprocess, sqlite3, time, google.generativeai
     from datetime import datetime, timedelta
     from discord.ext import commands
     from discord.ext.commands import has_permissions
@@ -62,7 +62,7 @@ try:
     from flask import Flask, send_from_directory, render_template, request
     from threading import Thread
 except ImportError:
-    print("\033[31m[CODE] Failed to import libraries. (3)\nIf you are running the program from source, then run this command to install them all:\npip install flask discord shuttleai google.generativeai numpy\nAnd make sure to have the latest version of jotalea.py, which should be in the same directory as this file.\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
+    print("\033[31m[CODE] Failed to import libraries. (3)\nIf you are running the program from source, then run this command to install them all:\npip install -r requirements.txt\nAnd make sure to have the latest version of libjotalea, which should be in the same directory as this file.\nIf this is a compiled program, report it to Jotalea and request a recompile.\033[0m")
     exit()
 
 ###########################################################################
@@ -124,7 +124,7 @@ try:
 
     # Settings
     settings_embed_color = 0x9bff30
-    settings_bot_version = "4.17.4"
+    settings_bot_version = "4.17.5"
 
     settings_printlog = True
     settings_logging = True
@@ -139,7 +139,7 @@ try:
     ###########################################################################
     ##########################################################################
     #print()
-    jotalea.gradient(text=settings_logo_no_color, mode="by-character-diagonal", start_color=[3, 255, 11], end_color=[1, 215, 214])
+    jotalea.gradient(text=settings_logo_no_color, mode="by-character-diagonal", start_color=[3, 254, 11], end_color=[1, 215, 214])
     #print(f"\n{settings_logo}\033[0m")
     jotalea.prettyprint("green", f"[CODE] Version: {settings_bot_version}")
 
@@ -429,8 +429,6 @@ try:
 
     DiscordWebSocket.identify = identify
 
-    shuttle = ShuttleClient(api_key=jotalea.GPT_KEY)
-
     # Store the bot's start time
     bot.start_time = time.time()
 
@@ -480,7 +478,6 @@ try:
             # Envía un mensaje si no hay usuarios baneados
             embed = discord.Embed(title="Banned Users", description="No users are currently banned.", color=settings_embed_color)
             await ctx.send(embed=embed)
-    # hehe funy number lol
             jotalea.prettyprint("green", "[COMMAND] No users are currently banned")
 
     # Commands
@@ -527,7 +524,7 @@ try:
 
         embed = discord.Embed(title=f"Activity set", description=f"Activity `{status.lower()} {status_content}` set successfully.", color=settings_embed_color)
         await ctx.send(embed=embed)
-        jotalea.prettyprint("green", "[COMMAND] j!say command responded")
+        jotalea.prettyprint("green", "[COMMAND] j!activity command responded")
 
     @bot.command()
     @has_permissions(administrator=True)
@@ -662,7 +659,8 @@ try:
 
     @bot.command()
     async def emoji(ctx, *, emoji_name):
-        emoji = discord.utils.get(bot.emojis, name=emoji_name)
+        jotalea.prettyprint("cyan", "[COMMAND] j!emoji command requested")
+        emoji = discord.utils.get(ctx.guild.emojis, name=emoji_name)  # Cambiado para buscar en el servidor actual
 
         if emoji:
             embed = discord.Embed(title=f'Information about this emoji :{emoji_name}:', color=settings_embed_color)
@@ -671,8 +669,10 @@ try:
             embed.add_field(name='URL', value=emoji.url, inline=False)
 
             await ctx.reply(embed=embed, mention_author=True)
+            jotalea.prettyprint("green", "[COMMAND] j!emoji command responded")
         else:
             await ctx.reply(f'That emoji isn\'t from this server (or I can\'t find it).', mention_author=True)
+            jotalea.prettyprint("red", "[COMMAND] j!emoji command failed, but responded anyway")
 
     @bot.command()
     async def help(ctx):
@@ -731,15 +731,15 @@ try:
                 await ctx.guild.kick(user)
                 embed = discord.Embed(title="User Kicked", description=f"{user.mention} has been kicked.", color=settings_embed_color)
                 await ctx.reply(embed=embed, mention_author=True)
-                jotalea.prettyprint("green", f"[COMMAND] Kicked {user.mention}")
+                jotalea.prettyprint("green", f"[COMMAND] j!kick Kicked {user.mention}")
             else:
                 embed = discord.Embed(title="Error", description="User not found.", color=settings_embed_color)
                 await ctx.reply(embed=embed, mention_author=True)
-                jotalea.prettyprint("red", "[COMMAND] User not found")
+                jotalea.prettyprint("red", "[COMMAND] j!kick User not found")
         else:
             embed = discord.Embed(title="Invalid Syntax", description="Use `j!kick user=1234567890`.", color=settings_embed_color)
             await ctx.reply(embed=embed, mention_author=True)
-            jotalea.prettyprint("red", "[COMMAND] Invalid syntax")
+            jotalea.prettyprint("red", "[COMMAND] j!kick Invalid syntax")
 
     @bot.command(name='leaderboard')
     async def leaderboard(ctx):
@@ -786,6 +786,7 @@ try:
         await message.add_reaction('✅')
         await message.add_reaction('❌')
         await bot.wait_for("reaction", check=check, timeout=60)
+        jotalea.prettyprint("green", "[COMMAND] j!rr command responded")
 
     @bot.command()
     async def say(ctx):
@@ -825,6 +826,7 @@ try:
     @bot.command()
     @has_permissions(administrator=True)
     async def removech(ctx):
+        jotalea.prettyprint("cyan", "[COMMAND] j!removech command requested")
         for channel in ctx.guild.channels:
             await channel.delete()
         await ctx.send("All channels have been deleted.")
@@ -832,9 +834,11 @@ try:
         await ctx.guild.create_category(name="Temp")
         category = discord.utils.get(ctx.guild.categories, name="Temp")
         await category.create_text_channel("temp")
+        jotalea.prettyprint("green", "[COMMAND] j!removech command responded")
 
     @bot.command()
     async def setup(ctx):
+        jotalea.prettyprint("cyan", "[COMMAND] j!setup command requested")
         try: #╔═[:speech_balloon:]┇general-español
             embed = discord.Embed(title="Formatting server", description="Formatting this server with a good-looking format", color=settings_embed_color)
             await ctx.reply(embed=embed)
@@ -889,13 +893,16 @@ try:
             await ctx.guild.create_role(name = "Booster", permissions = booster_permissions)
             await ctx.guild.create_role(name = "Miembro", permissions =  member_permissions)
             await ctx.guild.create_role(name = "Bot",     permissions =     bot_permissions)
+            jotalea.prettyprint("green", "[COMMAND] j!setup command responded")
         except Exception as e:
             embed = discord.Embed(title="Error formatting server", description=f"Error: {e}", color=settings_embed_color)
             await ctx.reply(embed=embed)
+            jotalea.prettyprint("green", "[COMMAND] j!setup command responded")
 
     @bot.command()
     async def setupbeta(ctx):
         try:
+            jotalea.prettyprint("cyan", "[COMMAND] j!cmd command requested")
             channels = {
                 "═══Server═══": [
                     {"name": "╔═[📢]announcements",     "permissions": 2147483647, "audio": False},
@@ -948,18 +955,20 @@ try:
                         await channel.set_permissions(ctx.guild.default_role, read_messages=True, send_messages=False)
 
             await ctx.send("Server formatting completed successfully.")
+            jotalea.prettyprint("green", "[COMMAND] j!cmd command responded")
 
         except Exception as e:
             embed = discord.Embed(title="Error formatting server", description=f"Error: {e}", color=settings_embed_color)
             await ctx.reply(embed=embed)
+            jotalea.prettyprint("red", f"[COMMAND] Error when processing command j!setupbeta: {str(e)}")
 
     @bot.command()
     async def shutdown(ctx):
-        print("[COMMAND] j!shutdown command requested")
+        jotalea.prettyprint("yellow", "[COMMAND] j!shutdown command requested")
         embed = discord.Embed(title="Shutdown JotaBOT?", description="Are you sure you want to **shutdown** JotaBOT? There is no way back...", color=settings_embed_color)
         message = await ctx.reply(embed=embed, mention_author=True)
         await message.add_reaction('✔️')
-        print("[COMMAND] j!shutdown command responded")
+        jotalea.prettyprint("yellow", "[COMMAND] j!shutdown command responded, awaiting for interaction")
 
     @bot.command()
     async def serverinvite(ctx):
@@ -976,6 +985,7 @@ try:
                 embed = discord.Embed(title="Server Invite - Error", description=f"{bot.guild.name}: Invite couldn't be created (no channels available).", color=settings_embed_color)
         except Exception as e:
             embed = discord.Embed(title="Server Invite - Error", description=f"{bot.guild.name}: Error when creating the invite: {e}", color=settings_embed_color)
+            jotalea.prettyprint("red", f"[COMMAND] Error when processing command j!serverinvite: {str(e)}")
 
         jotalea.prettyprint("green", "[COMMAND] j!serverinvite command responded")
         await ctx.reply(embed, mention_author=True)
@@ -1050,10 +1060,12 @@ try:
 
     @bot.command(name='tts')
     async def tts(ctx, *, text_to_speech):
+        jotalea.prettyprint("cyan", "[COMMAND] j!tts command requested")
         audio_file_path = jotalea.tts(text_to_speech, jotalea.GPT_KEY)
 
         if not audio_file_path:
             await ctx.reply("Error when generating audio.")
+            jotalea.prettyprint("red", "[COMMAND] Error when processing command j!tts")
             return
 
         try:
@@ -1062,15 +1074,18 @@ try:
 
         finally:
             os.remove(audio_file_path)
+            jotalea.prettyprint("green", "[COMMAND] j!tts command responded")
 
     @bot.command(name='uptime')
     async def uptime(ctx):
+        jotalea.prettyprint("cyan", "[COMMAND] j!uptime command requested")
         current_time = time.time()
         uptime_seconds = current_time - bot.start_time
         global uptime
         uptime = timedelta(seconds=int(uptime_seconds))
         embed = discord.Embed(title="Uptime", description=f"My uptime is: {str(uptime)}", color=settings_embed_color)
         await ctx.reply(embed=embed, mention_author=True)
+        jotalea.prettyprint("green", "[COMMAND] j!cmd command responded")
 
     @bot.command()
     async def version(ctx):
@@ -1100,6 +1115,7 @@ try:
             guild_count = len(bot.guilds)
             cursor.execute('''UPDATE server_count SET count = ? WHERE id = 1''', (guild_count,))
             database.commit()
+            jotalea.prettyprint("green", "[DATABASE] UPDATE server_count SET count = ? WHERE id = 1")
             await asyncio.sleep(3600) # Update the count every hour
 
     @bot.event
@@ -1108,6 +1124,7 @@ try:
         guild_count += 1
         cursor.execute('''UPDATE server_count SET count = ? WHERE id = 1''', (guild_count,))
         database.commit()
+        jotalea.prettyprint("green", "[DATABASE] UPDATE server_count SET count = ? WHERE id = 1")
 
     @bot.event
     async def on_guild_remove(guild):
@@ -1115,6 +1132,7 @@ try:
         guild_count -= 1
         cursor.execute('''UPDATE server_count SET count = ? WHERE id = 1''', (guild_count,))
         database.commit()
+        jotalea.prettyprint("green", "[DATABASE] UPDATE server_count SET count = ? WHERE id = 1")
 
     @bot.event
     async def on_reaction_add(reaction, user):
@@ -1142,7 +1160,7 @@ try:
                     else:
                         embed = discord.Embed(title="Russian Roulette - Error", description=f"There was an error processing the russian roulette's ban, you were going to get banned", color=settings_embed_color)
                     await reaction.message.channel.send(embed)
-                jotalea.prettyprint("red", f"[RR] {user.name} has lost the russian roulette on {reaction.message.guild.name}")
+                jotalea.prettyprint("red", f"[RUSSIAN ROULETTE] {user.name} has lost the russian roulette on {reaction.message.guild.name}")
         jotalea.prettyprint("green", "[COMMAND] j!rr command responded")
 
     @bot.event
@@ -1228,20 +1246,15 @@ try:
 
             async with message.channel.typing():
                 if settings_AI_type == "gpt":
+                    # Here's where everything started failing
                     try:
                         if message.attachments:
                             if message.attachments[0].url.split("?")[0].endswith(".png") or message.attachments[0].url.split("?")[0].endswith(".jpg"):
                                 image = message.attachments[0].url
                         else:
                             image = False
-                        response = await shuttle.chat_completion(
-                            model="shuttle-turbo",
-                            messages=user_history,
-                            stream=False,
-                            plain=False,
-                            internet=True,
-                            image=image
-                        )['choices'][0]['message']['content']
+
+                        response = "This is in building process, please be patient :)"
                     except Exception as e:
                         response = None
                         embed = discord.Embed(title="Jotabot AI - Error", description=str(e), color=settings_embed_color)
@@ -1251,11 +1264,11 @@ try:
                     if response:
                         user_history.append({'role': 'assistant', 'content': str(response)})
                 elif settings_AI_type == "gemini":
-                    response = jotalea.gemini(user_message)
+                    response = "This is in building process, please be patient :)" # jotalea.gemini(user_message)
 
-                print(response)
+                jotalea.prettyprint("purple", f"[AI] {response}")
 
-                if len(response) <= 2000:
+                if len(response) <= 1990:
                     embed = discord.Embed(title="Jotabot AI", description=response, color=settings_embed_color)
                     await message.reply(embed=embed, content="")
                 else:
@@ -1272,22 +1285,17 @@ try:
             original_message = message.reference.cached_message
             if original_message.author == bot.user:
                 user_message = message.content.replace("<@1142577469422051478> ", '').strip()
-
                 async with message.channel.typing():
                     if settings_AI_type == "gpt":
+                        # Here's where everything started failing
                         try:
                             if message.attachments:
-                                url = message.attachments[0].url.split("?")[0]
-                                if url.endswith((".png", ".jpg")):
-                                    image = url
-                            response = await shuttle.chat_completion(
-                                model="shuttle-turbo",
-                                messages=user_history,
-                                stream=False,
-                                plain=False,
-                                internet=True,
-                                image=message.attachments[0].url if message.attachments else None
-                            )['choices'][0]['message']['content']
+                                if message.attachments[0].url.split("?")[0].endswith(".png") or message.attachments[0].url.split("?")[0].endswith(".jpg"):
+                                    image = message.attachments[0].url
+                            else:
+                                image = False
+
+                            response = "This is in building process, please be patient :)"
                         except Exception as e:
                             response = None
                             embed = discord.Embed(title="Jotabot AI - Error", description=str(e), color=settings_embed_color)
@@ -1297,11 +1305,11 @@ try:
                         if response:
                             user_history.append({'role': 'assistant', 'content': str(response)})
                     elif settings_AI_type == "gemini":
-                        response = jotalea.gemini(user_message)
+                        response = "This is in building process, please be patient :)" # jotalea.gemini(user_message)
 
-                    print(response)
+                    jotalea.prettyprint("purple", f"[AI] {response}")
 
-                    if len(response) <= 2000:
+                    if len(response) <= 1990:
                         embed = discord.Embed(title="Jotabot AI", description=response, color=settings_embed_color)
                         await message.reply(embed=embed, content="")
                     else:
