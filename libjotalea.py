@@ -9,48 +9,57 @@ GPT_MODEL = "gpt-4"
 GPT_TTS_URL = ""
 GEMINI_KEY = ""
 
-def gemini(prompt, uRequests:bool=False):
-    # curl -H 'Content-Type: application/json' -d '{"contents":[{"parts":[{"text":"Write a story about a magic backpack"}]}]}' -X POST https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_API_KEY
-    import os
-    if uRequests:
-        import requests
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+def gemini(prompt, history=[]):
+    global GEMINI_KEY
+    import requests, json
+    
+    # Command copied from docs
+    """
+    curl https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GOOGLE_API_KEY \
+        -H 'Content-Type: application/json' \
+        -X POST \
+        -d '{
+          "contents": [
+            {"role":"user",
+             "parts":[{
+               "text": "Hello"}]},
+            {"role": "model",
+             "parts":[{
+               "text": "Great to meet you. What would you like to know?"}]},
+            {"role":"user",
+             "parts":[{
+               "text": "I have two dogs in my house. How many paws are in my house?"}]},
+          ]
+        }' 2> /dev/null | grep "text"
+    """
+    
+    if not history:
+        history = [
+            {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+
+    response = requests.post(
+        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}',
         headers = {
             'Content-Type': 'application/json',
+        },
+        json={
+            "contents": history
         }
-        data = {
-            "contents": [
-                {
-                    "parts": [
-                        {
-                            "text": prompt
-                        }
-                    ]
-                }
-            ]
-        }
-        params = {
-            'key': GEMINI_KEY
-        }
-        response = requests.post(url, headers=headers, json=data, params=params)
-
-        result = response.json()
-        return result['candidates'][0]['content']['parts'][0]['text']
-    else:
-        import google.generativeai as genai
-
-        genai.configure(api_key=GEMINI_KEY)
-
-        model = genai.GenerativeModel('models/gemini-pro')
-        chat = model.start_chat()
-        try:
-            response = chat.send_message(prompt)
-        except Exception as e:
-            return f"Your message was blocked:\n{e}"
-
-        print(response.text)
-    
-        return response.text
+        
+    )
+    try:
+        reply = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        return reply if reply else None
+    except Exception as e:
+        return str(e)
 
 def chatgpt(prompt:str, history_payload:list):
     import requests, json
