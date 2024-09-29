@@ -124,7 +124,7 @@ try:
 
     # Settings
     settings_embed_color = 0x9bff30
-    settings_bot_version = "4.17.5"
+    settings_bot_version = "4.18.3"
 
     settings_printlog = True
     settings_logging = True
@@ -1190,8 +1190,7 @@ try:
             jotalea.prettyprint("blue", f"[MESSAGE] {datetime.now().strftime('%H:%M %d/%m/%Y')} [{server_name}] #{message.channel.name} @{username} ({message.author.id}):\n{message.content}")
             if message.attachments:
                 for attachment in message.attachments:
-                    print(f'Attached file: {attachment.url}')
-
+                    jotalea.prettyprint("blue", f"Attached file: {attachment.url}")
         # Logs help to locate and prevent server raids
         if settings_logging:
             if settings_use_async:
@@ -1226,7 +1225,10 @@ try:
 
         # Take away the bot name from the message and add to history
         user_message = message.content.replace("<@1142577469422051478> ", '').strip()
-        user_history.append({'role': 'user', 'content': user_message})
+        if settings_AI_type == "gpt":
+            user_history.append({'role': 'user', 'content': user_message})
+        elif settings_AI_type == "gemini":
+            user_history.append({'role': 'user', 'parts': [{'text': user_message}]})
 
         # Limit the chat history to a maximum amount of messages
         max_history_length = 20
@@ -1264,7 +1266,8 @@ try:
                     if response:
                         user_history.append({'role': 'assistant', 'content': str(response)})
                 elif settings_AI_type == "gemini":
-                    response = "This is in building process, please be patient :)" # jotalea.gemini(user_message)
+                    response = jotalea.gemini(user_message, user_history)
+                    user_history.append({'role': 'model', 'parts': [{'text': str(response)}]})
 
                 jotalea.prettyprint("purple", f"[AI] {response}")
 
@@ -1305,7 +1308,8 @@ try:
                         if response:
                             user_history.append({'role': 'assistant', 'content': str(response)})
                     elif settings_AI_type == "gemini":
-                        response = "This is in building process, please be patient :)" # jotalea.gemini(user_message)
+                        response = jotalea.gemini(user_message, user_history)
+                        user_history.append({'role': 'model', 'parts': [{'text': str(response)}]})
 
                     jotalea.prettyprint("purple", f"[AI] {response}")
 
