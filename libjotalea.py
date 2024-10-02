@@ -8,42 +8,40 @@ GPT_HEADERS = {"Content-Type": "application/json", "Authorization": f"Bearer {GP
 GPT_MODEL = "gpt-4"
 GPT_TTS_URL = ""
 GEMINI_KEY = ""
+GEMINI_MEMORY = []
 
-def gemini(prompt, history=[]):
-    global GEMINI_KEY
+def gemini(prompt, history=[], memory=False, personality:str="You are a helpful AI."):
+    global GEMINI_KEY, GEMINI_MEMORY
     import requests, json
     
-    # Command copied from docs
-    """
-    curl https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GOOGLE_API_KEY \
-        -H 'Content-Type: application/json' \
-        -X POST \
-        -d '{
-          "contents": [
-            {"role":"user",
-             "parts":[{
-               "text": "Hello"}]},
-            {"role": "model",
-             "parts":[{
-               "text": "Great to meet you. What would you like to know?"}]},
-            {"role":"user",
-             "parts":[{
-               "text": "I have two dogs in my house. How many paws are in my house?"}]},
-          ]
-        }' 2> /dev/null | grep "text"
-    """
-    
     if not history:
-        history = [
-            {
-                "role": "user",
-                "parts": [
-                    {
-                        "text": prompt
-                    }
-                ]
-            }
-        ]
+        # No chat history is provided, create a new one
+        if not memory:
+            # Do not remember the conversation
+            # Make the history with just the prompt
+            history = [
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                           "text": prompt
+                        }
+                    ]
+                }
+            ]
+        else:
+            # Remember the conversation
+            history = GEMINI_MEMORY
+            history.append(
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                           "text": prompt
+                        }
+                    ]   
+                }
+            )
 
     response = requests.post(
         f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}',
@@ -51,15 +49,74 @@ def gemini(prompt, history=[]):
             'Content-Type': 'application/json',
         },
         json={
+            "system_instruction": {"parts": {"text": personality}},
             "contents": history
         }
         
     )
     try:
         reply = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        if memory:
+            history.append({"role": "model", "parts": [{"text": reply}]})
+            GEMINI_MEMORY = history
         return reply if reply else None
     except Exception as e:
         return str(e)
+    
+class GeminiChat:
+    def __init__(self, key):
+        self.GEMINI_KEY = key
+        self.GEMINI_MEMORY = []
+
+    def gemini(self, prompt, history=[], memory=False, personality:str="You are a helpful AI."):
+        import requests, json
+    
+        if not history:
+            # No chat history is provided, create a new one
+            if not memory:
+                # Do not remember the conversation
+                history = [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                               "text": prompt
+                            }
+                        ]
+                    }
+                ]
+            else:
+                # Remember the conversation
+                history = self.GEMINI_MEMORY
+                history.append(
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                               "text": prompt
+                            }
+                        ]   
+                    }
+                )
+
+        response = requests.post(
+            f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.GEMINI_KEY}',
+            headers = {
+                'Content-Type': 'application/json',
+            },
+            json={
+                "system_instruction": {"parts": {"text": personality}},
+                "contents": history
+            }
+        )
+        try:
+            reply = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+            if memory:
+                history.append({"role": "model", "parts": [{"text": reply}]})
+                self.GEMINI_MEMORY = history
+            return reply if reply else None
+        except Exception as e:
+            return str(e)
 
 def chatgpt(prompt:str, history_payload:list):
     import requests, json
