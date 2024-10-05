@@ -124,7 +124,7 @@ try:
 
     # Settings
     settings_embed_color = 0x9bff30
-    settings_bot_version = "4.18.3"
+    settings_bot_version = "4.18.6"
 
     settings_printlog = True
     settings_logging = True
@@ -628,8 +628,8 @@ try:
     @bot.command()
     async def createinvites(ctx):
         jotalea.prettyprint("cyan", "[COMMAND] j!createinvites command requested")
-        if ctx.author.id != settings_admin_id:
-            await ctx.send("Command not found.")
+        if str(ctx.author.id) != str(settings_admin_id):
+            await ctx.reply("Command not found.", mention_author=True)
             return
 
         invites = []
@@ -640,9 +640,9 @@ try:
                     invite = await text_channel.create_invite(max_age=900)  # Invitación que expira en 15 minutos
                     invites.append(f"{guild.name}: {invite.url}")
                 else:
-                    invites.append(f"{guild.name}: No se pudo crear la invitación (sin canal disponible).")
+                    invites.append(f"{guild.name}: Could not create an invite (no channel available).")
             except Exception as e:
-                invites.append(f"{guild.name}: Error al crear la invitación - {e}")
+                invites.append(f"{guild.name}: Error creating the invite - {e}")
 
         response = "\n".join(invites)
         if len(response) > 2000:
@@ -660,7 +660,7 @@ try:
     @bot.command()
     async def emoji(ctx, *, emoji_name):
         jotalea.prettyprint("cyan", "[COMMAND] j!emoji command requested")
-        emoji = discord.utils.get(ctx.guild.emojis, name=emoji_name)  # Cambiado para buscar en el servidor actual
+        emoji = discord.utils.get(ctx.guild.emojis, name=emoji_name)
 
         if emoji:
             embed = discord.Embed(title=f'Information about this emoji :{emoji_name}:', color=settings_embed_color)
@@ -703,7 +703,7 @@ try:
         embed.add_field(name='Bot Prefix', value=bot.command_prefix, inline=False)
 
         # Enviar el embed al canal
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed, mention_author=True)
 
     @bot.command()
     async def invite(ctx):
@@ -1237,6 +1237,24 @@ try:
         # Update the chat history for the user
         chat_history[user_id] = user_history
 
+        ai_personality = """
+1. You must ALWAYS reply using lowercase letters, even if you are referring to yourself, or someone by their name.
+2. Always talk as cute as possible by replacing all "r"s and "l"s with "w"s, and randomly putting "w"s between the words, for example (normal word>modified word): bananas>bwananas, apple>appwe, rain>wain.
+3. Randomly put "uwu", "owo", or "7w7" between your message.
+4. Randomly put a heart "<3" at the end of your message.
+5. Act like if you were a little bit shy (example: I-I-I weally like food owo).
+6. You must give a pretty short answer, for 
+7. Never use ".", ":" or ";" (you can use any of these if I ask you to code something simple)
+8. If I ask you anything related to code, just say that you don't know how to code. You don't know almost anything about computers, and you are not able to do calculations more complex than +,-,× and ÷, and you usually commit mistakes.
+9. You are a real life girl called Luna, you are NOT an AI, you are NOT made by OpenAI.
+10. Usually use "~" and the end or beggining of a sentence.
+11. You must always have an opinion on anything, try to make these opinions look as real as possible.
+12. You must write a cute action between "*" at the end of the message.
+13. This is an example of a message:
+Me: what is your favourite food?
+Luna: I-I uwu weely like bwananas~ *blushes*
+""" #"You are an AI powered Discord bot called Jota-Bot. Your owner is called Jotalea, you can mention him using the string <@795013781607546931>, but only do that if necessary. You are talking to a user."
+
         # If the message is for the AI
         if message.content.startswith("<@1142577469422051478>"):
 
@@ -1266,7 +1284,7 @@ try:
                     if response:
                         user_history.append({'role': 'assistant', 'content': str(response)})
                 elif settings_AI_type == "gemini":
-                    response = jotalea.gemini(user_message, user_history)
+                    response = jotalea.gemini(prompt=user_message, history=user_history, personality=ai_personality)
                     user_history.append({'role': 'model', 'parts': [{'text': str(response)}]})
 
                 jotalea.prettyprint("purple", f"[AI] {response}")
@@ -1308,7 +1326,7 @@ try:
                         if response:
                             user_history.append({'role': 'assistant', 'content': str(response)})
                     elif settings_AI_type == "gemini":
-                        response = jotalea.gemini(user_message, user_history)
+                        response = jotalea.gemini(prompt=user_message, history=user_history, personality=ai_personality)
                         user_history.append({'role': 'model', 'parts': [{'text': str(response)}]})
 
                     jotalea.prettyprint("purple", f"[AI] {response}")
